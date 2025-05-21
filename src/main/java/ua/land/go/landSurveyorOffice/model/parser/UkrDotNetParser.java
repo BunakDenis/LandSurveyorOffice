@@ -5,17 +5,13 @@ import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
 
 
 import jakarta.mail.*;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.search.FromStringTerm;
 
-import java.io.Console;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /*
 
@@ -31,8 +27,8 @@ import java.util.stream.Collectors;
 
 public class UkrDotNetParser implements MailParser {
 
-    private final List<MailMessage> messagesCreatedStatement = new ArrayList<>();
-    private final List<MailMessage> messagesProcessedStatement = new ArrayList<>();
+    private final List<MailMessage> createdMessages = new ArrayList<>();
+    private final List<MailMessage> processedMessages = new ArrayList<>();
     private String login;
     private String password;
     private Store store;
@@ -84,36 +80,27 @@ public class UkrDotNetParser implements MailParser {
     public List<Message> getFolderMessagesOfYear(int year, String folderName) {
         List<Message> result = new ArrayList<>();
 
-        try {
-            //Парсинг созданных заяв
-            Folder inboxCreatedStatement = store.getFolder(folderName);
-            inboxCreatedStatement.open(Folder.READ_ONLY);
+        result.addAll(getFolderMessages(folderName));
 
-            Message[] foundMessagesCreatedStatement = inboxCreatedStatement.search(new FromStringTerm("e-noreply@land.gov.ua"));
+        return result.stream().filter(message -> {
+                    try {
+                        Optional<LocalDateTime> recieveDateOptional = Optional.ofNullable(message.getReceivedDate().toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime());
 
-            result.addAll(Arrays.asList(foundMessagesCreatedStatement));
-
-            return result.stream().filter(message -> {
-                        try {
-                            LocalDateTime sentDate = message.getSentDate().toInstant()
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalDateTime();
-
-                            if (sentDate.getYear() == year) {
+                        if (recieveDateOptional.isPresent()) {
+                            LocalDateTime receiveDate = recieveDateOptional.get();
+                            if (receiveDate.getYear() == year) {
                                 return true;
                             }
-
-                        } catch (MessagingException e) {
-                            System.err.println(e.getMessage());
                         }
-                        return false;
-                    })
-                    .toList();
 
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        return result;
+                    } catch (MessagingException e) {
+                        System.err.println(e.getMessage());
+                    }
+                    return false;
+                })
+                .toList();
     }
 
     public List<MailMessage> getMessagesOfFolderByYear(int year, String folderName) {
@@ -144,12 +131,36 @@ public class UkrDotNetParser implements MailParser {
 
     }
 
-    public List<MailMessage> getMessagesCreatedStatement() {
-        return Collections.unmodifiableList(messagesCreatedStatement);
+    public List<MailMessage> getCreatedMessages() {
+        return Collections.unmodifiableList(createdMessages);
     }
 
-    public List<MailMessage> getMessagesProcessedStatement() {
-        return Collections.unmodifiableList(messagesProcessedStatement);
+    public List<MailMessage> getProcessedMessages() {
+        return Collections.unmodifiableList(processedMessages);
+    }
+
+    public MailMessage getMailMessageFromMessage(Message msg, boolean isProcessed) {
+        MailMessage result = new MailMessage();
+
+        try {
+            String subject = msg.getSubject() != null ? msg.getSubject() : "(без темы)";
+            String body = getTextFromMessage(msg);
+
+            result.setApplicationNumber(getSubjectFromString(subject));
+            result.setApplicant(getApplicantFromMessageBody(body));
+            result.setCadNumber(getCadNumberFromMessageBody(body));
+            result.setReceivedDate(getReceivedDate(msg).toString());
+            result.setProcessed(
+                    isProcessed ? true : false
+            );
+
+
+        } catch (Exception e) {
+            System.err.println("Ошибка создания mailMessage = " + e.getMessage());
+        }
+
+        return result;
+
     }
 
     private String getTextFromMessage(Message message) throws Exception {
@@ -169,4 +180,77 @@ public class UkrDotNetParser implements MailParser {
         return "";
     }
 
+    private String getSubjectFromString(String text) {
+        String result = "";
+
+        int start = text.indexOf("№-");
+        int end = start + 13;
+
+        if (start != -1) {
+            result = text.substring((start + 2), end).trim();
+        }
+        return result;
+    }
+
+    private String getApplicantFromMessageBody(String body) {
+        String result = "";
+
+        if (body == null || body.isEmpty()) return "";
+
+        String lowerBody = body.toLowerCase();
+        int index = lowerBody.indexOf("шановний(а)");
+        int offset = 11;
+
+        if (index == -1) {
+            index = lowerBody.indexOf("шановний");
+            offset = 8;
+        }
+
+        if (index == -1) return "";
+
+        // Старт после ключевого слова
+        int start = index + offset;
+
+        // Ищем запятую, начиная с позиции start
+        int end = body.indexOf(",", start);
+        if (end == -1) {
+            end = body.length();
+        }
+
+        result = body.substring(start, end).trim();
+
+        // Очистка
+        result = result.replace("&quot;", "\"").replace(",", "");
+
+        return result;
+    }
+
+    private LocalDateTime getReceivedDate(Message msg) {
+        try {
+            Optional<LocalDateTime> recieveDateOptional = Optional.ofNullable(msg.getReceivedDate().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime());
+
+            if (recieveDateOptional.isPresent()) {
+                return recieveDateOptional.get();
+            }
+
+        } catch (MessagingException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    private String getCadNumberFromMessageBody(String body) {
+        String result = "відсутній";
+        Pattern pattern = Pattern.compile("<\\s*\\d{10}:\\d{2}:\\d{3}:\\d{4}\\s*>");
+        Matcher matcher = pattern.matcher(body);
+
+        if (matcher.find()) {
+            result = matcher.group();
+
+            result = result.replaceAll("[<>\\s]", "");
+        }
+        return result;
+    }
 }
