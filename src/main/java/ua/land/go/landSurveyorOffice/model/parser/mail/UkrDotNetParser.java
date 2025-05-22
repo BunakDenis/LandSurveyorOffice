@@ -1,4 +1,4 @@
-package ua.land.go.landSurveyorOffice.model.parser;
+package ua.land.go.landSurveyorOffice.model.parser.mail;
 
 
 import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
@@ -13,17 +13,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/*
-
-    TODO Добавить методы:
-    1. getSubject()
-    2. getApplicant()
-    3. getCadNumber()
-
-    В методе getFolderMessagesOfYear добавить проверку на тип сообщения (полученое или отправленое)
-    если полученое проверять дату через метод getReceivedDate() если отправленное через getSentDate()
-
- */
 
 public class UkrDotNetParser implements MailParser {
 

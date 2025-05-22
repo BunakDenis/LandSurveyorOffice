@@ -1,7 +1,7 @@
-package ua.land.go.landSurveyorOffice.model.parser;
+package ua.land.go.landSurveyorOffice.model.parser.mail;
 
 import jakarta.mail.Message;
-import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
+import ua.land.go.landSurveyorOffice.model.parser.Parser;
 
 import java.util.List;
 

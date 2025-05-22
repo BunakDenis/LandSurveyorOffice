@@ -17,6 +17,7 @@ public class MailMessageService {
 
     /*
     TODO Добавить методы:
+    1. рефактор метода getNoProcessedMessages (номера заяв не сравниваются)
     2. getOverdueApplications
     3. getAllApplicators
     4. getAllApplicatorApplications

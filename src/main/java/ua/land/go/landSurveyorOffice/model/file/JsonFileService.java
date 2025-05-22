@@ -86,7 +86,7 @@ public class JsonFileService {
                             escapeCsv(msg.getApplicationNumber()),
                             escapeCsv(msg.getApplicant()),
                             escapeCsv(msg.getCadNumber()),
-                            msg.getReceivedDate(), // убедитесь, что toString даёт ISO 8601 или нужный формат
+                            msg.getReceivedDate(),
                             msg.isProcessed()
                     );
                 }

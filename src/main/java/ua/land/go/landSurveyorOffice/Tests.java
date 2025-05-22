@@ -1,22 +1,12 @@
 package ua.land.go.landSurveyorOffice;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import ua.land.go.landSurveyorOffice.model.file.JsonFileService;
-import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
-import ua.land.go.landSurveyorOffice.model.mail.MailMessageService;
-import ua.land.go.landSurveyorOffice.model.parser.UkrDotNetParser;
+import ua.land.go.landSurveyorOffice.model.file.ExtractGeoCadastr;
+import ua.land.go.landSurveyorOffice.model.file.FileWriter;
+import ua.land.go.landSurveyorOffice.model.parser.file.GeoCadastralExtractParser;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Tests {
 
@@ -55,9 +45,11 @@ public class Tests {
         parser.closeStore();
 */
 
+        /*
         JsonFileService jsonFileService = new JsonFileService("./messages.json");
 
         jsonFileService.writeFileContentToCsvFile();
+        */
 
         /*
         // Собираем две коллекции в единый объект, чтобы удобно хранить в одном файле
@@ -78,6 +70,18 @@ public class Tests {
 
         //System.out.println("Неопрацьовані заявки");
         //noProcessedMessages.forEach(System.out::println);
+
+        GeoCadastralExtractParser geoCadastralExtractParser =
+                new GeoCadastralExtractParser("f:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\Витяги");
+
+        geoCadastralExtractParser.parse();
+        List<ExtractGeoCadastr> extracts = geoCadastralExtractParser.getExtracts();
+
+        FileWriter writer = new FileWriter();
+
+        writer.writeDataToCsvFile(
+                extracts, "f:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\parsePdf.csv"
+        );
 
     }
 }
