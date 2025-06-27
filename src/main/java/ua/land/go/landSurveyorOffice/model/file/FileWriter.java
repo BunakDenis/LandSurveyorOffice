@@ -16,12 +16,9 @@ import static org.unbescape.csv.CsvEscape.escapeCsv;
 public class FileWriter {
 
     public void writeDataToCsvFile(List<ExtractGeoCadastr> data, String outPutFilePath) {
+        File file = new File(outPutFilePath);
 
-        try {
-
-            File file = new File(outPutFilePath);
-
-            PrintWriter writer = new PrintWriter(file);
+        try (PrintWriter writer = new PrintWriter(file)) {
 
             // Записываем заголовок
             writer.println("Номер заяви;Кадастровий номер;Місце розташування земельної ділянки;Площа;" +
@@ -29,6 +26,8 @@ public class FileWriter {
 
 
             for (ExtractGeoCadastr extract : data) {
+
+                System.out.println("Запись информации об участке с кад. номером - " + extract.getCadNumber());
 
                 writer.printf(
                         "%s;%s;%s;%s;%s;%s;%s%n",

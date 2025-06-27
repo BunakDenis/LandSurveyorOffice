@@ -91,21 +91,6 @@ public class UkrDotNetParser implements MailParser {
                 })
                 .toList();
     }
-
-    public List<MailMessage> getMessagesOfFolderByYear(int year, String folderName) {
-        List<MailMessage> result = new ArrayList<>();
-        List<Message> messages = getFolderMessagesOfYear(year, folderName);
-
-        try {
-            String textFromMessage = getTextFromMessage(messages.get(0));
-
-            System.out.println("textFromMessage = " + textFromMessage);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        return result;
-    }
-
     @Override
     public void parse() {
         connect();
@@ -173,7 +158,7 @@ public class UkrDotNetParser implements MailParser {
         String result = "";
 
         int start = text.indexOf("№-");
-        int end = start + 13;
+        int end = start + 14;
 
         if (start != -1) {
             result = text.substring((start + 2), end).trim();

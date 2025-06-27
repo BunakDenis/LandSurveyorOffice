@@ -23,34 +23,36 @@ public class GeoCadastralExtractParser implements Parser {
 
     @Override
     public void parse() {
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles();
 
-        try {
-            File folder = new File(folderPath);
+        if (files != null) { // Проверка на null, если папка пуста
+            for (File file : files) {
+                try {
+                    PDDocument document = PDDocument.load(new FileInputStream(file.getAbsolutePath()));
+                    PDFTextStripper stripper = new PDFTextStripper();
+                    String text = stripper.getText(document);
 
-            File[] files = folder.listFiles();
+                    ExtractGeoCadastr extract = new ExtractGeoCadastr();
 
-            for (int i = 0; i < files.length; i++) {
+                    extract.setApplicationNumber(extractApplicationNumber(text));
+                    extract.setCadNumber(extractCadNumber(text));
+                    extract.setParcelAddress(extractParcelAddress(text));
+                    extract.setParcelArea(extractParcelArea(text));
+                    extract.setParcelOwner(extractParcelOwner(text));
+                    extract.setParcelOwnerDocument(extractParcelOwnerDocument(text));
+                    extract.setFileName(file.getName());
 
-                PDDocument document = PDDocument.load(new FileInputStream(files[i].getAbsolutePath()));
-                PDFTextStripper stripper = new PDFTextStripper();
-                String text = stripper.getText(document);
+                    extracts.add(extract);
 
-                ExtractGeoCadastr extract = new ExtractGeoCadastr();
-
-                extract.setApplicationNumber(extractApplicationNumber(text));
-                extract.setCadNumber(extractCadNumber(text));
-                extract.setParcelAddress(extractParcelAddress(text));
-                extract.setParcelArea(extractParcelArea(text));
-                extract.setParcelOwner(extractParcelOwner(text));
-                extract.setParcelOwnerDocument(extractParcelOwnerDocument(text));
-                extract.setFileName(files[i].getName());
-
-                extracts.add(extract);
-
-                document.close();
+                    document.close();
+                    System.out.println("Successfully parsed: " + file.getName()); // Логирование успешной обработки
+                } catch (IOException e) {
+                    System.err.println("Error parsing PDF " + file.getName() + ": " + e.getMessage());
+                }
             }
-        } catch (IOException e) {
-            System.err.println("Error parsing PDF" + e.getMessage());
+        } else {
+            System.err.println("Folder is empty or does not exist: " + folderPath);
         }
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import static org.unbescape.csv.CsvEscape.escapeCsv;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Component
 public class JsonFileService {
 
     private String filePath;
@@ -31,6 +33,7 @@ public class JsonFileService {
         File jsonFile = getFile();
 
         try {
+            jsonFile.createNewFile();
             mapper.writeValue(jsonFile, data);
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -100,7 +103,6 @@ public class JsonFileService {
         }
         this.filePath = this.filePath.replace(".csv", ".json");
     }
-
 
     private File getFile() {
         return new File(filePath);

@@ -1,16 +1,26 @@
 package ua.land.go.landSurveyorOffice;
 
 
+import jakarta.mail.Message;
 import ua.land.go.landSurveyorOffice.model.file.ExtractGeoCadastr;
 import ua.land.go.landSurveyorOffice.model.file.FileWriter;
+import ua.land.go.landSurveyorOffice.model.file.JsonFileService;
+import ua.land.go.landSurveyorOffice.model.mail.MailMessage;
+import ua.land.go.landSurveyorOffice.model.mail.MailMessageService;
 import ua.land.go.landSurveyorOffice.model.parser.file.GeoCadastralExtractParser;
+import ua.land.go.landSurveyorOffice.model.parser.mail.UkrDotNetParser;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Tests {
 
     public static void main(String[] args) throws IOException {
+
+        JsonFileService jsonFileService = new JsonFileService("./messages.json");
 /*
         String login = "xisi926@ukr.net";
         String password = "XlvRpnqkrAQQMmo4";
@@ -43,45 +53,31 @@ public class Tests {
         }
 
         parser.closeStore();
-*/
 
-        /*
-        JsonFileService jsonFileService = new JsonFileService("./messages.json");
-
-        jsonFileService.writeFileContentToCsvFile();
-        */
-
-        /*
         // Собираем две коллекции в единый объект, чтобы удобно хранить в одном файле
         Map<String, List<MailMessage>> payload = new LinkedHashMap<>();
         payload.put("created",   createdMailMessages);
         payload.put("processed", processedMailMessages);
 
         jsonFileService.writeDataToFile(payload);
-        */
 
-        /*
-        Map<String, List<MailMessage>> payload = jsonFileService.loadDataFromFile();
+        jsonFileService.writeFileContentToCsvFile();
+*/
 
-        MailMessageService mailMessageService = new MailMessageService(payload);
-
-        List<MailMessage> noProcessedMessages = mailMessageService.getNoProcessedMessages();
-        */
-
-        //System.out.println("Неопрацьовані заявки");
-        //noProcessedMessages.forEach(System.out::println);
+        String pdfFilePath = "g:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\ТД невитребовка\\Витяги\\";
 
         GeoCadastralExtractParser geoCadastralExtractParser =
-                new GeoCadastralExtractParser("f:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\Витяги");
+                new GeoCadastralExtractParser(pdfFilePath);
 
         geoCadastralExtractParser.parse();
         List<ExtractGeoCadastr> extracts = geoCadastralExtractParser.getExtracts();
 
+        extracts.forEach(System.out::println);
+
         FileWriter writer = new FileWriter();
 
         writer.writeDataToCsvFile(
-                extracts, "f:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\parsePdf.csv"
+                extracts, pdfFilePath + "parse.csv"
         );
-
     }
 }

@@ -32,14 +32,21 @@ public class MailMessageService {
 
         System.out.println("Ожидаемый результат - " + (createdMessages.size() - processedMessages.size()));
 
-        for (MailMessage msg : processedMessages) {
+        for (MailMessage msg : createdMessages) {
+            boolean isProcessed = false;
+            MailMessage noProcessed = new MailMessage();
 
-            createdMessages.forEach(mailMessage -> {
-                if (mailMessage.equals(msg)) {
-                    result.add(mailMessage);
+            for (int i = 0; i < processedMessages.size(); i++) {
+                if (processedMessages.get(i).equals(msg)) {
+                    isProcessed = true;
+
                 }
-            });
-        }
+            }
+
+            if (!isProcessed) {
+                result.add(msg);
+            }
+        };
 
         System.out.println("Полученный результат - " + result.size());
 
