@@ -27,8 +27,6 @@ public class FileWriter {
 
             for (ExtractGeoCadastr extract : data) {
 
-                System.out.println("Запись информации об участке с кад. номером - " + extract.getCadNumber());
-
                 writer.printf(
                         "%s;%s;%s;%s;%s;%s;%s%n",
                         escapeCsv(extract.getApplicationNumber()),

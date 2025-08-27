@@ -64,20 +64,25 @@ public class Tests {
         jsonFileService.writeFileContentToCsvFile();
 */
 
-        String pdfFilePath = "g:\\Работа\\Сновський район\\с. Кучинівка\\паи\\ПП Нива Імпульс\\ТД невитребовка\\Витяги\\";
+        List<String> pdfFilePaths = new ArrayList<>();
 
-        GeoCadastralExtractParser geoCadastralExtractParser =
-                new GeoCadastralExtractParser(pdfFilePath);
 
-        geoCadastralExtractParser.parse();
-        List<ExtractGeoCadastr> extracts = geoCadastralExtractParser.getExtracts();
-
-        extracts.forEach(System.out::println);
-
-        FileWriter writer = new FileWriter();
-
-        writer.writeDataToCsvFile(
-                extracts, pdfFilePath + "parse.csv"
+        pdfFilePaths.add(
+                "g:\\Работа\\ФеодалПроект\\Львівська область\\Яворівський район\\Мостиська ОТГ\\с. Зав_язанці\\Не зарегистрированные\\витяги\\"
         );
+
+        for (String pdfFilePath : pdfFilePaths) {
+            GeoCadastralExtractParser geoCadastralExtractParser =
+                    new GeoCadastralExtractParser(pdfFilePath);
+
+            geoCadastralExtractParser.parse();
+            List<ExtractGeoCadastr> extracts = geoCadastralExtractParser.getExtracts();
+
+            FileWriter writer = new FileWriter();
+
+            writer.writeDataToCsvFile(
+                    extracts, pdfFilePath + "parse.csv"
+            );
+        }
     }
 }
