@@ -1,5 +1,6 @@
 package ua.land.go.landSurveyorOffice.model.parser.file;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import ua.land.go.landSurveyorOffice.model.file.ExtractGeoCadastr;
@@ -12,11 +13,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class GeoCadastralExtractParser implements Parser {
     private String folderPath;
     private List<ExtractGeoCadastr> extracts;
 
     public GeoCadastralExtractParser(String folderPath) {
+        log.debug("GeoCadastralExtractParser init with folder path {}", folderPath);
         this.folderPath = folderPath;
         this.extracts = new ArrayList<>();
     }
@@ -38,6 +41,7 @@ public class GeoCadastralExtractParser implements Parser {
                     extract.setApplicationNumber(extractApplicationNumber(text));
                     extract.setCadNumber(extractCadNumber(text));
                     extract.setParcelAddress(extractParcelAddress(text));
+                    extract.setIntendedPropose(extractIntendedPropose(text));
                     extract.setParcelArea(extractParcelArea(text));
                     extract.setParcelOwner(extractParcelOwner(text));
                     extract.setParcelOwnerDocument(extractParcelOwnerDocument(text));
@@ -83,9 +87,37 @@ public class GeoCadastralExtractParser implements Parser {
         if (matcher.find()) {
             String part1 = matcher.group(1).replaceAll("\\s+", " ").trim();
             String part2 = matcher.group(2).replaceAll("\\s+", " ").trim();
-            return part1 + ", " + part2;
+            return part1 + " " + part2;
         }
         return null;
+    }
+
+    /**
+     * Этот метод извлекает вид целевого назначения земельного участка.
+     * Он ищет блок текста, который начинается с "Вид цільового призначення земельної ділянки"
+     * и заканчивается перед "Обліковий номер масиву".
+     * Флаг Pattern.DOTALL необходим, так как искомый текст может быть многострочным.
+     *
+     * @param text - содержимое pdf файла "Витягя з ДЗК"
+     *             Если pdf файл "Витягя з ДЗК" распознан, и в файле есть целевое назначение участка метод
+     * @return String extractedText
+     *
+     */
+    private String extractIntendedPropose(String text) {
+        // Регекс учитывает перенос строки между "Вид цільового призначення" и "земельної ділянки"
+        Pattern pattern = Pattern.compile(
+                "Вид цільового призначення\\s*земельної\\s*ділянки\\s*(\\d{2}\\.\\d{2}.*?)(?=Обліковий номер|Площа земельної)",
+                Pattern.DOTALL
+        );
+
+        Matcher matcher = pattern.matcher(text);
+
+        if (matcher.find()) {
+            // Нормализуем пробелы и переносы
+            return matcher.group(1).replaceAll("\\s+", " ").trim();
+        }
+
+        return null; // ничего не нашли
     }
 
     private String extractParcelArea(String text) {

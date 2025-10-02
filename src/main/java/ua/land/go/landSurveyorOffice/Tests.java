@@ -21,7 +21,8 @@ public class Tests {
     public static void main(String[] args) throws IOException {
 
         JsonFileService jsonFileService = new JsonFileService("./messages.json");
-/*
+
+        /*
         String login = "xisi926@ukr.net";
         String password = "XlvRpnqkrAQQMmo4";
 
@@ -62,13 +63,14 @@ public class Tests {
         jsonFileService.writeDataToFile(payload);
 
         jsonFileService.writeFileContentToCsvFile();
-*/
+        */
+
 
         List<String> pdfFilePaths = new ArrayList<>();
 
 
         pdfFilePaths.add(
-                "g:\\Работа\\ФеодалПроект\\Львівська область\\Яворівський район\\Мостиська ОТГ\\с. Зав_язанці\\Не зарегистрированные\\витяги\\"
+                "g:\\Работа\\ФеодалПроект\\Львівська область\\Яворівський район\\Мостиська ОТГ\\с. Стоянці\\дороги\\Витяги_виправлені\\"
         );
 
         for (String pdfFilePath : pdfFilePaths) {

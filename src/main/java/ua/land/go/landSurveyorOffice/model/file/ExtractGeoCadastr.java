@@ -12,10 +12,9 @@ public class ExtractGeoCadastr {
     private String applicationNumber;
     private String cadNumber;
     private String parcelAddress;
+    private String intendedPropose;
     private String parcelArea;
     private String parcelOwner;
     private String parcelOwnerDocument;
     private String fileName;
-
-    // Getters and setters
 }

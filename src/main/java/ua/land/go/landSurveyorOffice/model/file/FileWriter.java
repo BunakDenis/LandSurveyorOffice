@@ -21,8 +21,8 @@ public class FileWriter {
         try (PrintWriter writer = new PrintWriter(file)) {
 
             // Записываем заголовок
-            writer.println("Номер заяви;Кадастровий номер;Місце розташування земельної ділянки;Площа;" +
-                    "Власник(користувач) зем. діл.;Правовий документ;Назва файлу витяга");
+            writer.println("Номер заяви;Кадастровий номер;Місце розташування земельної ділянки;Цільове призначення;" +
+                    "Площа;Власник(користувач) зем. діл.;Правовий документ;Назва файлу витяга");
 
 
             for (ExtractGeoCadastr extract : data) {
@@ -32,6 +32,7 @@ public class FileWriter {
                         escapeCsv(extract.getApplicationNumber()),
                         escapeCsv(extract.getCadNumber()),
                         escapeCsv(extract.getParcelAddress()),
+                        escapeCsv(extract.getIntendedPropose()),
                         escapeCsv(extract.getParcelArea()),
                         escapeCsv(extract.getParcelOwner()),
                         escapeCsv(extract.getParcelOwnerDocument()),
